@@ -47,7 +47,7 @@ public class SubsumptionHierarchyBuilder {
         return this;
     }
 
-    public HierarchySubsumption build() {
-        return new HierarchySubsumption(equivalentClassesByClass, nodeByClass, directSuperclasses, directSubclasses, subclasses, superclasses);
+    public SubsumptionHierarchy build() {
+        return new SubsumptionHierarchy(equivalentClassesByClass, nodeByClass, directSuperclasses, directSubclasses, subclasses, superclasses);
     }
 }

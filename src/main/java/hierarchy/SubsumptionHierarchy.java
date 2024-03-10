@@ -8,7 +8,7 @@ import org.semanticweb.owlapi.reasoner.impl.OWLClassNodeSet;
 import java.util.Map;
 import java.util.Set;
 
-public class HierarchySubsumption {
+public class SubsumptionHierarchy {
 
     private final Map<OWLClassExpression, Set<OWLClassExpression>> equivalentClassesByClass;
     private final Map<OWLClass, OWLClassNode> nodeByClass;
@@ -18,7 +18,7 @@ public class HierarchySubsumption {
     private final Map<OWLClassNode, OWLClassNodeSet> superclasses;
 
 
-    public HierarchySubsumption(
+    public SubsumptionHierarchy(
         Map<OWLClassExpression, Set<OWLClassExpression>> equivalentClassesByClass,
         Map<OWLClass, OWLClassNode> nodeByClass,
         Map<OWLClassNode, OWLClassNodeSet> directSuperclasses,
