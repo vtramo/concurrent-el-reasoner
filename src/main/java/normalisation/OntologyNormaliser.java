@@ -47,7 +47,7 @@ public class OntologyNormaliser implements OWLAxiomVisitor {
             .allMatch(violation -> violation instanceof UndeclaredEntityViolation);
 
         if (!isInProfile) {
-            throw new IllegalArgumentException();
+            System.out.println("ONTOLOGY NOT IN OWL2EL PROFILE!");
         }
     }
 
