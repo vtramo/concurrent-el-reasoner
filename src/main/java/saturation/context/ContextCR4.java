@@ -91,7 +91,7 @@ public final class ContextCR4 implements Context {
             }
 
             Set<OWLClassExpression> processedSubclasses = subclassesByRoleProcessedAxioms.get(role);
-            return processedSubclasses.contains(superClass);
+            return processedSubclasses.contains(axiom.getSubClass());
         } else {
             return simpleProcessedAxioms.contains(axiom);
         }
