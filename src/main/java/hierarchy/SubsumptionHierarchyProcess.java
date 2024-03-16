@@ -9,15 +9,19 @@ import saturation.SaturationResult;
 import java.util.*;
 
 public class SubsumptionHierarchyProcess {
-    private final Map<OWLClassExpression, Set<OWLClassExpression>> superConceptsMap = new HashMap<>();
-    private final Map<OWLClassExpression, Set<OWLClassExpression>> equivalentConceptsMap = new HashMap<>();
-    private final Map<OWLClassExpression, Set<OWLClassExpression>> directSuperConceptsMap = new HashMap<>();
+    private final Map<OWLClassExpression, Set<OWLClassExpression>> superclassesMap = new HashMap<>();
+    private final Map<OWLClassExpression, Set<OWLClassExpression>> equivalentClassesMap = new HashMap<>();
+    private final Map<OWLClassExpression, Set<OWLClassExpression>> directSuperclassesMap = new HashMap<>();
 
-    public SubsumptionHierarchy buildHierarchy(SaturationResult saturationResult) {
-        Set<OWLSubClassOfAxiom> allAxioms = saturationResult.getAllAxioms();
+    public SubsumptionHierarchy buildHierarchy(Set<OWLSubClassOfAxiom> allAxioms) {
         buildSuperConceptsMap(allAxioms);
         performTransitiveReduction();
         return buildTaxonomy();
+    }
+
+    public SubsumptionHierarchy buildHierarchy(SaturationResult saturationResult) {
+        Set<OWLSubClassOfAxiom> allAxioms = saturationResult.getAllAxioms();
+        return buildHierarchy(allAxioms);
     }
 
     private void buildSuperConceptsMap(Set<OWLSubClassOfAxiom> axioms) {
@@ -27,46 +31,46 @@ public class SubsumptionHierarchyProcess {
 
             if (subClass instanceof OWLObjectSomeValuesFrom someValuesFrom) {
                 OWLClassExpression filler = someValuesFrom.getFiller();
-                superConceptsMap.computeIfAbsent(filler, __ -> new HashSet<>());
+                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>());
             }
 
             if (superClass instanceof OWLObjectSomeValuesFrom someValuesFrom) {
                 OWLClassExpression filler = someValuesFrom.getFiller();
-                superConceptsMap.computeIfAbsent(filler, __ -> new HashSet<>());
+                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>());
             }
 
             if ((subClass  .isClassExpressionLiteral() || subClass   instanceof OWLObjectOneOf) &&
                 (superClass.isClassExpressionLiteral() || superClass instanceof OWLObjectOneOf)) {
 
-                superConceptsMap
+                superclassesMap
                     .computeIfAbsent(subClass, __ -> new HashSet<>())
                     .add(superClass);
 
-                superConceptsMap.computeIfAbsent(superClass, __ -> new HashSet<>());
+                superclassesMap.computeIfAbsent(superClass, __ -> new HashSet<>());
 
             }
         }
     }
 
     private void performTransitiveReduction() {
-        for (OWLClassExpression conceptA: superConceptsMap.keySet()) {
-            Set<OWLClassExpression> superConceptsA = this.superConceptsMap.get(conceptA);
+        for (OWLClassExpression conceptA: superclassesMap.keySet()) {
+            Set<OWLClassExpression> superConceptsA = superclassesMap.get(conceptA);
             for (OWLClassExpression conceptC: superConceptsA) {
-                Set<OWLClassExpression> superConceptsC = superConceptsMap.get(conceptC);
+                Set<OWLClassExpression> superConceptsC = superclassesMap.get(conceptC);
                 if (superConceptsC.contains(conceptA)) {
-                    equivalentConceptsMap
+                    equivalentClassesMap
                         .computeIfAbsent(conceptA, __ -> new HashSet<>())
                         .add(conceptC);
                 } else {
                     boolean isDirect = true;
-                    Set<OWLClassExpression> directSuperConceptsA = directSuperConceptsMap.getOrDefault(conceptA, new HashSet<>());
+                    Set<OWLClassExpression> directSuperConceptsA = directSuperclassesMap.computeIfAbsent(conceptA, __ -> new HashSet<>());
                     Iterator<OWLClassExpression> directSuperConceptsAIterator = directSuperConceptsA.iterator();
 
                     while (directSuperConceptsAIterator.hasNext()) {
                         OWLClassExpression conceptB = directSuperConceptsAIterator.next();
 
-                        Set<OWLClassExpression> directSuperConceptsB = directSuperConceptsMap.getOrDefault(conceptB, new HashSet<>());
-                        if (directSuperConceptsB.contains(conceptC)) {
+                        Set<OWLClassExpression> superConceptsB = superclassesMap.computeIfAbsent(conceptB, __ -> new HashSet<>());
+                        if (superConceptsB.contains(conceptC)) {
                             isDirect = false;
                             break;
                         }
@@ -77,7 +81,7 @@ public class SubsumptionHierarchyProcess {
                     }
 
                     if (isDirect) {
-                        directSuperConceptsMap
+                        directSuperclassesMap
                             .computeIfAbsent(conceptA, __ -> new HashSet<>())
                             .add(conceptC);
                     }
@@ -88,20 +92,20 @@ public class SubsumptionHierarchyProcess {
 
     private SubsumptionHierarchy buildTaxonomy() {
 
-        Map<OWLClass, OWLClassNode> nodeByClass = new HashMap<>(superConceptsMap.size());
-        Map<OWLClassNode, OWLClassNodeSet> directSuperclasses = new HashMap<>(superConceptsMap.size());
-        Map<OWLClassNode, OWLClassNodeSet> directSubclasses = new HashMap<>(superConceptsMap.size());
-        Map<OWLClassNode, OWLClassNodeSet> subclasses = new HashMap<>(superConceptsMap.size());
-        Map<OWLClassNode, OWLClassNodeSet> superclasses = new HashMap<>(superConceptsMap.size());
+        Map<OWLClass, OWLClassNode>        nodeByClass                   = new HashMap<>(superclassesMap.size());
+        Map<OWLClassNode, OWLClassNodeSet> directSuperclassesByClassNode = new HashMap<>(superclassesMap.size());
+        Map<OWLClassNode, OWLClassNodeSet> directSubclassesByClassNode   = new HashMap<>(superclassesMap.size());
+        Map<OWLClassNode, OWLClassNodeSet> subclassesByClassNode         = new HashMap<>(superclassesMap.size());
+        Map<OWLClassNode, OWLClassNodeSet> superclassesByClassNode       = new HashMap<>(superclassesMap.size());
 
-        for (OWLClassExpression equivalentClassRepresentative: equivalentConceptsMap.keySet()) {
+        for (OWLClassExpression equivalentClassRepresentative: equivalentClassesMap.keySet()) {
             if (equivalentClassRepresentative instanceof OWLClass owlEquivalentClassRepresentative) {
                 if (nodeByClass.containsKey(owlEquivalentClassRepresentative)) {
                     continue;
                 }
 
                 OWLClassNode classes = new OWLClassNode();
-                Set<OWLClassExpression> equivalentClasses = equivalentConceptsMap.get(equivalentClassRepresentative);
+                Set<OWLClassExpression> equivalentClasses = equivalentClassesMap.get(equivalentClassRepresentative);
                 for (OWLClassExpression equivalentClass : equivalentClasses) {
                     if (equivalentClass instanceof OWLClass owlClass) {
                         classes.add(owlClass);
@@ -119,43 +123,43 @@ public class SubsumptionHierarchyProcess {
         nodeByClass.put(owlThing, owlThingClassNode);
         nodeByClass.put(owlNothing, owlNothingClassNode);
 
-        for (OWLClassExpression conceptKey: directSuperConceptsMap.keySet()) {
+        for (OWLClassExpression conceptKey: directSuperclassesMap.keySet()) {
             if (conceptKey instanceof OWLClass owlClassKey) {
                 OWLClassNode owlClassNodeKey = nodeByClass.computeIfAbsent(owlClassKey, __ -> new OWLClassNode(owlClassKey));
 
-                if (directSuperclasses.containsKey(owlClassNodeKey)) {
+                if (directSuperclassesByClassNode.containsKey(owlClassNodeKey)) {
                     continue;
                 }
 
                 OWLClassNodeSet owlDirectSuperClassesNodeSet = new OWLClassNodeSet();
-                for (OWLClassExpression directSuperConcept: directSuperConceptsMap.get(conceptKey)) {
+                for (OWLClassExpression directSuperConcept: directSuperclassesMap.get(conceptKey)) {
                     if (directSuperConcept instanceof OWLClass owlSuperClass) {
                         OWLClassNode owlDirectSuperClassNode = nodeByClass.computeIfAbsent(owlSuperClass, __ -> new OWLClassNode(owlSuperClass));
                         owlDirectSuperClassesNodeSet.addNode(owlDirectSuperClassNode);
 
-                        directSubclasses
+                        directSubclassesByClassNode
                             .computeIfAbsent(owlDirectSuperClassNode, __ -> new OWLClassNodeSet())
                             .addNode(owlClassNodeKey);
                     }
                 }
 
-                directSuperclasses.put(owlClassNodeKey, owlDirectSuperClassesNodeSet);
+                directSuperclassesByClassNode.put(owlClassNodeKey, owlDirectSuperClassesNodeSet);
             }
         }
 
-        for (OWLClassExpression conceptKey: superConceptsMap.keySet()) {
+        for (OWLClassExpression conceptKey: superclassesMap.keySet()) {
             if (conceptKey instanceof OWLClass owlClassKey) {
                 OWLClassNode owlClassNodeKey = nodeByClass.computeIfAbsent(owlClassKey, __ -> new OWLClassNode(owlClassKey));
-                directSuperclasses.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlThingClassNode));
-                directSubclasses.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
-                subclasses.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
+                directSuperclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlThingClassNode));
+                directSubclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
+                subclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
 
-                if (superclasses.containsKey(owlClassNodeKey)) {
+                if (superclassesByClassNode.containsKey(owlClassNodeKey)) {
                     continue;
                 }
 
                 OWLClassNodeSet owlSuperClassesNodeSet = new OWLClassNodeSet(owlThingClassNode);
-                for (OWLClassExpression superConcept: superConceptsMap.get(conceptKey)) {
+                for (OWLClassExpression superConcept: superclassesMap.get(conceptKey)) {
                     if (superConcept instanceof OWLClass owlSuperClass) {
                         OWLClassNode owlSuperClassNode = nodeByClass.computeIfAbsent(owlSuperClass, __ -> new OWLClassNode(owlSuperClass));
 
@@ -165,23 +169,23 @@ public class SubsumptionHierarchyProcess {
 
                         owlSuperClassesNodeSet.addNode(owlSuperClassNode);
 
-                        subclasses
+                        subclassesByClassNode
                             .computeIfAbsent(owlSuperClassNode, __ -> new OWLClassNodeSet(owlNothingClassNode))
                             .addNode(owlClassNodeKey);
                     }
                 }
 
-                superclasses.put(owlClassNodeKey, owlSuperClassesNodeSet);
+                superclassesByClassNode.put(owlClassNodeKey, owlSuperClassesNodeSet);
             }
         }
 
         return new SubsumptionHierarchyBuilder()
             .nodeByClass(nodeByClass)
-            .equivalentClassesByClass(equivalentConceptsMap)
-            .directSubclasses(directSubclasses)
-            .directSuperclasses(directSuperclasses)
-            .subclasses(subclasses)
-            .superclasses(superclasses)
+            .equivalentClassesByClass(equivalentClassesMap)
+            .directSubclasses(directSubclassesByClassNode)
+            .directSuperclasses(directSuperclassesByClassNode)
+            .subclasses(subclassesByClassNode)
+            .superclasses(superclassesByClassNode)
             .build();
     }
 }
