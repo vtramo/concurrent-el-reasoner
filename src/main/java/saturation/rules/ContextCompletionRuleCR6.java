@@ -1,8 +1,8 @@
 package saturation.rules;
 
+import com.google.common.graph.Graph;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-import saturation.collections.FastReachabilityGraph;
 import saturation.context.ContextCR6;
 
 import java.util.*;
@@ -13,15 +13,18 @@ public final class ContextCompletionRuleCR6 implements ContextCompletionRule<Con
     @Override
     public Collection<OWLSubClassOfAxiom> apply(OWLSubClassOfAxiom premise, ContextCR6 context) {
         Set<OWLClassExpression> processedIndividualSubclasses = context.getProcessedIndividualSubclasses();
-        if (processedIndividualSubclasses.size() < 2) return Collections.emptyList();
+        if (processedIndividualSubclasses.size() < 2) {
+            return Collections.emptyList();
+        }
 
         Set<OWLSubClassOfAxiom> conclusions = new HashSet<>();
         for (OWLClassExpression processedSubclass1: processedIndividualSubclasses) {
             for (OWLClassExpression processedSubclass2: processedIndividualSubclasses) {
-                if (Objects.equals(processedSubclass1, processedSubclass2)) continue;
+                if (Objects.equals(processedSubclass1, processedSubclass2)) {
+                    continue;
+                }
+
                 Set<OWLSubClassOfAxiom> results = inferConclusions(context, processedSubclass1, processedSubclass2);
-                conclusions.addAll(results);
-                results = inferConclusions(context, processedSubclass2, processedSubclass1);
                 conclusions.addAll(results);
             }
         }
@@ -33,30 +36,60 @@ public final class ContextCompletionRuleCR6 implements ContextCompletionRule<Con
         Set<OWLSubClassOfAxiom> conclusions = new HashSet<>();
         OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
 
-        if (reachability(context, origin, destination)) {
+        boolean find = reachability(context, origin, destination);
+        if (!find) {
+            Set<OWLIndividual> processedIndividuals = context.getProcessedIndividuals();
+            for (OWLIndividual processedIndividual: processedIndividuals) {
+                if (Objects.equals(processedIndividual, context.getIndividual())) break;
+                OWLObjectOneOf owlObjectOneOf = owlDataFactory.getOWLObjectOneOf(processedIndividual);
+                find = reachability(context, owlObjectOneOf, destination);
+                if (find) break;
+            }
+        }
+
+        if (find) {
             Map<OWLClassExpression, Set<OWLClassExpression>> superclassesBySubclassProcessedAxioms =
                 context.getSimpleSuperclassesBySubclassProcessedAxiomsMap();
 
-            Set<OWLClassExpression> superclassesProcessedSubclass2 = superclassesBySubclassProcessedAxioms.getOrDefault(destination, new HashSet<>());
-            Set<OWLClassExpression> superclassesProcessedSubclass1 = superclassesBySubclassProcessedAxioms.getOrDefault(origin, new HashSet<>());
-            if (!superclassesProcessedSubclass1.containsAll(superclassesProcessedSubclass2)) {
-                conclusions.addAll(
-                    superclassesProcessedSubclass2.stream()
-                        .map(conclusionSuperclass -> owlDataFactory.getOWLSubClassOfAxiom(origin, conclusionSuperclass))
-                        .collect(toSet())
-                );
-            }
+            Set<OWLClassExpression> superclassesDestination = superclassesBySubclassProcessedAxioms.getOrDefault(destination, new HashSet<>());
+
+            conclusions.addAll(
+                superclassesDestination.stream()
+                    .map(conclusionSuperclass -> owlDataFactory.getOWLSubClassOfAxiom(origin, conclusionSuperclass))
+                    .collect(toSet())
+            );
+
         }
 
         return conclusions;
     }
 
-    private boolean reachability(ContextCR6 context, OWLClassExpression origin, OWLClassExpression destination) {
-        FastReachabilityGraph<OWLObject> fastReachabilityGraph = context.getFastReachabilityGraph();
-        if (fastReachabilityGraph.reachability(origin, destination)) return true;
-        for (OWLIndividual individual: context.getProcessedIndividuals()) {
-            if (fastReachabilityGraph.reachability(individual, destination)) return true;
+    private boolean reachability(ContextCR6 context, OWLObject origin, OWLObject destination) {
+        Graph<OWLObject> graph = context.getGraph();
+        Set<OWLObject> reachedObjects = new HashSet<>(graph.nodes().size());
+
+        List<OWLObject> queue = new ArrayList<>();
+        queue.add(origin);
+
+        boolean find = false;
+        while (!queue.isEmpty()) {
+            OWLObject node = queue.removeFirst();
+            reachedObjects.add(node);
+
+            for (OWLObject successor: graph.successors(node)) {
+                if (Objects.equals(successor, destination)) {
+                    find = true;
+                    break;
+                }
+
+                if (!reachedObjects.contains(successor)) {
+                    queue.add(successor);
+                }
+            }
+
+            if (find) break;
         }
-        return false;
+
+        return find;
     }
 }

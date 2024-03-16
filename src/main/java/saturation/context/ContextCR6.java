@@ -1,7 +1,10 @@
 package saturation.context;
 
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
 import org.semanticweb.owlapi.model.*;
-import saturation.collections.FastReachabilityGraph;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -18,7 +21,7 @@ public final class ContextCR6 implements Context {
     private final Set<OWLClassExpression> processedIndividualSubclasses = new HashSet<>();
     private final Map<OWLClassExpression, Set<OWLClassExpression>> simpleSuperclassesBySubclassProcessedAxiomsMap = new HashMap<>();
     private final Set<OWLSubClassOfAxiom> processedAxioms = new HashSet<>();
-    private final FastReachabilityGraph<OWLObject> fastReachabilityGraph = new FastReachabilityGraph<>();
+    private final MutableGraph<OWLObject> graph = GraphBuilder.directed().build();
     private AtomicBoolean isActive = new AtomicBoolean(false);
 
     public ContextCR6(OWLIndividual individual) {
@@ -27,11 +30,7 @@ public final class ContextCR6 implements Context {
 
     @Override
     public boolean addTodoAxiom(OWLSubClassOfAxiom axiom) {
-        OWLClassExpression subClass = axiom.getSubClass();
-        OWLClassExpression superClass = axiom.getSuperClass();
-        if (!isSubclassBCConcept(subClass) || (!isSuperclassBCConcept(superClass) && !(superClass instanceof OWLObjectSomeValuesFrom))) {
-            throw new IllegalArgumentException();
-        }
+        checkAxiomValidity(axiom);
 
         return todoAxioms.add(axiom);
     }
@@ -48,12 +47,15 @@ public final class ContextCR6 implements Context {
 
     @Override
     public boolean addProcessedAxiom(OWLSubClassOfAxiom axiom) {
+        checkAxiomValidity(axiom);
+
         OWLClassExpression subClass = axiom.getSubClass();
         OWLClassExpression superClass = axiom.getSuperClass();
 
-        if (subClass instanceof OWLClass conceptName) {
+        if (isSubclassBCConcept(subClass)) {
 
-            fastReachabilityGraph.addNode(conceptName);
+            graph.addNode(subClass);
+
             if (isSuperclassBCConcept(superClass)) {
                 simpleSuperclassesBySubclassProcessedAxiomsMap
                     .computeIfAbsent(subClass, __ -> new HashSet<>())
@@ -64,7 +66,7 @@ public final class ContextCR6 implements Context {
 
         if (superClass instanceof OWLClass conceptName) {
 
-            fastReachabilityGraph.addNode(conceptName);
+            graph.addNode(conceptName);
 
         }
 
@@ -72,10 +74,7 @@ public final class ContextCR6 implements Context {
 
             Set<OWLIndividual> individuals = objectOneOf.getIndividuals();
             if (individuals.size() > 1) throw new IllegalArgumentException();
-            individuals.forEach(individual -> {
-                fastReachabilityGraph.addNode(individual);
-                processedIndividuals.add(individual);
-            });
+            graph.addNode(objectOneOf);
 
         }
 
@@ -83,25 +82,39 @@ public final class ContextCR6 implements Context {
 
             Set<OWLIndividual> individuals = objectOneOf.getIndividuals();
             if (individuals.size() > 1) throw new IllegalArgumentException();
+            graph.addNode(objectOneOf);
+            processedIndividuals.addAll(individuals);
+
             individuals.forEach(individual -> {
-                fastReachabilityGraph.addNode(individual);
-                processedIndividuals.add(individual);
-                if (isSubclassBCConcept(subClass)) {
+                if (isSubclassBCConcept(subClass) && Objects.equals(individual, this.getIndividual())) {
                     processedIndividualSubclasses.add(subClass);
                 }
             });
 
         }
 
-        if (isSubclassBCConcept(subClass) && superClass instanceof OWLObjectSomeValuesFrom objectSomeValuesFrom) {
+        if (isSubclassBCConcept(subClass) && superClass instanceof OWLObjectSomeValuesFrom objectSomeValuesFrom && isSubclassBCConcept(objectSomeValuesFrom.getFiller())) {
 
             OWLClassExpression filler = objectSomeValuesFrom.getFiller();
-            fastReachabilityGraph.addNode(filler);
-            fastReachabilityGraph.connectStronglyConnectedComponents(subClass, filler);
+            graph.addNode(filler);
+            if (!Objects.equals(subClass, filler)) {
+                EndpointPair<OWLObject> ordered = EndpointPair.ordered(subClass, filler);
+
+                graph.putEdge(ordered);
+            }
 
         }
 
         return processedAxioms.add(axiom);
+    }
+
+    private void checkAxiomValidity(OWLSubClassOfAxiom axiom) {
+        OWLClassExpression subClass = axiom.getSubClass();
+        OWLClassExpression superClass = axiom.getSuperClass();
+
+        if (!isSubclassBCConcept(subClass) || (!(superClass instanceof OWLObjectSomeValuesFrom) && !isSuperclassBCConcept(superClass))) {
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override
@@ -128,9 +141,7 @@ public final class ContextCR6 implements Context {
         return simpleSuperclassesBySubclassProcessedAxiomsMap;
     }
 
-    public FastReachabilityGraph<OWLObject> getFastReachabilityGraph() {
-        return fastReachabilityGraph;
-    }
+    public Graph<OWLObject> getGraph() { return graph; }
 
     public OWLIndividual getIndividual() {
         return individual;
