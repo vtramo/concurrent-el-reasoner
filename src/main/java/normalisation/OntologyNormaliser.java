@@ -12,8 +12,7 @@ import org.semanticweb.owlapi.profiles.violations.UndeclaredEntityViolation;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static normalisation.NormalisationChecks.isSubclassBCConcept;
-import static normalisation.NormalisationChecks.isSuperclassBCConcept;
+import static normalisation.NormalisationUtils.isAbnormalTBoxAxiom;
 
 public class OntologyNormaliser implements OWLAxiomVisitor {
 
@@ -143,7 +142,6 @@ public class OntologyNormaliser implements OWLAxiomVisitor {
             }
         }
     }
-    // -----------
 
     public Collection<OWLSubClassOfAxiom> task(OWLAxiom axiom) {
         ArrayList<OWLSubClassOfAxiom> result = new ArrayList<>();
@@ -162,6 +160,7 @@ public class OntologyNormaliser implements OWLAxiomVisitor {
         }
         return result;
     }
+    // -----------
 
     @Override
     public void visit(OWLSubClassOfAxiom subClassOfAxiom) {
@@ -182,35 +181,6 @@ public class OntologyNormaliser implements OWLAxiomVisitor {
         } else {
             abnormalTBoxAxiomsListIterator.add(potentiallyAbnormalTBoxAxiom);
         }
-    }
-
-    static boolean isAbnormalTBoxAxiom(OWLSubClassOfAxiom owlSubClassOfAxiom) {
-        OWLClassExpression subClass = owlSubClassOfAxiom.getSubClass();
-        OWLClassExpression superClass = owlSubClassOfAxiom.getSuperClass();
-
-        if (isSubclassBCConcept(subClass) && isSuperclassBCConcept(superClass)) {
-            return false;
-        }
-
-        if (subClass instanceof OWLObjectIntersectionOf objectIntersectionOf && isSuperclassBCConcept(superClass)) {
-            List<OWLClassExpression> operands = objectIntersectionOf.getOperandsAsList();
-            OWLClassExpression first = operands.getFirst();
-            OWLClassExpression last = operands.getLast();
-
-            if (isSubclassBCConcept(first)  && isSubclassBCConcept(last)) return false;
-        }
-
-        if (isSubclassBCConcept(subClass) && superClass instanceof OWLObjectSomeValuesFrom rightIsObjectSomeValuesFrom) {
-            OWLClassExpression filler = rightIsObjectSomeValuesFrom.getFiller();
-            if (isSubclassBCConcept(filler)) return false;
-        }
-
-        if (subClass instanceof OWLObjectSomeValuesFrom leftIsObjectSomeValuesFrom && isSuperclassBCConcept(superClass)) {
-            OWLClassExpression filler = leftIsObjectSomeValuesFrom.getFiller();
-            return !isSubclassBCConcept(filler);
-        }
-
-        return true;
     }
 
 }

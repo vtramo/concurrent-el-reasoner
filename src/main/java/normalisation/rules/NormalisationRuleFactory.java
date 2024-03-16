@@ -4,6 +4,8 @@ import org.semanticweb.owlapi.model.*;
 
 import java.util.List;
 
+import static normalisation.NormalisationUtils.*;
+
 public class NormalisationRuleFactory {
 
     public static NormalisationRule getTBoxAxiomNormalisationRule(OWLSubClassOfAxiom owlSubClassOfAxiom) {
@@ -23,18 +25,18 @@ public class NormalisationRuleFactory {
         OWLClassExpression subClass = subClassOfAxiom.getSubClass();
         OWLClassExpression superClass = subClassOfAxiom.getSuperClass();
 
-        if (superClass.isNamed()) {
+        if (isSuperclassBCConcept(superClass)) {
 
             if (subClass instanceof OWLObjectIntersectionOf objectIntersectionOf) {
                 List<OWLClassExpression> objectIntersectionOfOperands = objectIntersectionOf.getOperandsAsList();
                 OWLClassExpression leftObjectIntersectionOf = objectIntersectionOfOperands.getFirst();
                 OWLClassExpression rightObjectIntersectionOf = objectIntersectionOfOperands.getLast();
 
-                if (isNotNamedAndIsNotTopEntity(rightObjectIntersectionOf)) {
+                if (!isSubclassBCConcept(rightObjectIntersectionOf)) {
                     return NormalisationRuleType.NF1_RIGHT;
                 }
 
-                if (isNotNamedAndIsNotTopEntity(leftObjectIntersectionOf)) {
+                if (!isSubclassBCConcept(leftObjectIntersectionOf)) {
                     return NormalisationRuleType.NF1_LEFT;
                 }
 
@@ -43,7 +45,7 @@ public class NormalisationRuleFactory {
             if (subClass instanceof OWLObjectSomeValuesFrom objectSomeValuesFrom) {
                 OWLClassExpression filler = objectSomeValuesFrom.getFiller();
 
-                if (isNotNamedAndIsNotTopEntity(filler)) {
+                if (!isSubclassBCConcept(filler)) {
                     return NormalisationRuleType.NF2;
                 }
 
@@ -51,12 +53,12 @@ public class NormalisationRuleFactory {
 
         }
 
-        if (subClass.isNamed()) {
+        if (isSubclassBCConcept(subClass)) {
 
             if (superClass instanceof OWLObjectSomeValuesFrom objectSomeValuesFrom) {
                 OWLClassExpression filler = objectSomeValuesFrom.getFiller();
 
-                if (isNotNamedAndIsNotTopEntity(filler)) {
+                if (!isSuperclassBCConcept(filler)) {
                     return NormalisationRuleType.NF3;
                 }
             }

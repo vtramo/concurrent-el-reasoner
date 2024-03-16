@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static normalisation.NormalisationChecks.isSubclassBCConcept;
+import static normalisation.NormalisationUtils.isSubclassBCConcept;
 
 public final class ContextCR5 implements Context {
     private final ContextType contextType = ContextType.CR5;

@@ -6,6 +6,8 @@ import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 import java.util.Collection;
 import java.util.List;
 
+import static normalisation.rules.NormalisationRule.*;
+
 public class NF3 implements NormalisationRule {
     @Override
     public Collection<OWLSubClassOfAxiom> normalise(IRI ontologyIri, OWLSubClassOfAxiom subClassOfAxiom) {
@@ -22,7 +24,7 @@ public class NF3 implements NormalisationRule {
         }
 
         OWLDataFactoryImpl owlDataFactory = new OWLDataFactoryImpl();
-        OWLClass newClass = owlDataFactory.getOWLClass(ontologyIri + "#" + subClass.hashCode() + superClass.hashCode());
+        OWLClass newClass = generateClass(ontologyIri, subClass, superClass);
 
         OWLSubClassOfAxiom firstNewSubClassOfAxiom = owlDataFactory.getOWLSubClassOfAxiom(newClass, filler);
 

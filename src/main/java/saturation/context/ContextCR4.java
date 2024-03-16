@@ -8,8 +8,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static normalisation.NormalisationChecks.isSubclassBCConcept;
-import static normalisation.NormalisationChecks.isSuperclassBCConcept;
+import static normalisation.NormalisationUtils.isSubclassBCConcept;
+import static normalisation.NormalisationUtils.isSuperclassBCConcept;
 
 public final class ContextCR4 implements Context {
     private final ContextType contextType = ContextType.CR4;

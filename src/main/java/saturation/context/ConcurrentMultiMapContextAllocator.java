@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static normalisation.NormalisationChecks.isSubclassBCConcept;
-import static normalisation.NormalisationChecks.isSuperclassBCConcept;
+import static normalisation.NormalisationUtils.isSubclassBCConcept;
+import static normalisation.NormalisationUtils.isSuperclassBCConcept;
 
 public class ConcurrentMultiMapContextAllocator implements ContextAllocator {
 

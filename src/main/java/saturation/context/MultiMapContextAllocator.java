@@ -5,8 +5,8 @@ import org.semanticweb.owlapi.model.*;
 
 import java.util.*;
 
-import static normalisation.NormalisationChecks.isSubclassBCConcept;
-import static normalisation.NormalisationChecks.isSuperclassBCConcept;
+import static normalisation.NormalisationUtils.isSubclassBCConcept;
+import static normalisation.NormalisationUtils.isSuperclassBCConcept;
 
 public class MultiMapContextAllocator implements ContextAllocator {
     private final Map<OWLClassExpression, Set<Context>> CR1CR2CR3Contexts = new HashMap<>();

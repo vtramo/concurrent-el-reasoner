@@ -9,6 +9,8 @@ import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 import java.util.Collection;
 import java.util.List;
 
+import static normalisation.rules.NormalisationRule.*;
+
 public class NF0 implements NormalisationRule {
     @Override
     public Collection<OWLSubClassOfAxiom> normalise(IRI ontologyIri, OWLSubClassOfAxiom subClassOfAxiom) {
@@ -16,7 +18,7 @@ public class NF0 implements NormalisationRule {
         OWLClassExpression superClass = subClassOfAxiom.getSuperClass();
 
         OWLDataFactoryImpl owlDataFactory = new OWLDataFactoryImpl();
-        OWLClass newClass = owlDataFactory.getOWLClass(ontologyIri + "#" + subClass.hashCode() + superClass.hashCode());
+        OWLClass newClass = generateClass(ontologyIri, subClass, superClass);
 
         OWLSubClassOfAxiom firstNewSubClassOfAxiom = owlDataFactory.getOWLSubClassOfAxiom(subClass, newClass);
         OWLSubClassOfAxiom secondNewSubClassOfAxiom = owlDataFactory.getOWLSubClassOfAxiom(newClass, superClass);

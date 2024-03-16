@@ -2,8 +2,8 @@ package index;
 
 import org.semanticweb.owlapi.model.*;
 
-import static normalisation.NormalisationChecks.isSubclassBCConcept;
-import static normalisation.NormalisationChecks.isSuperclassBCConcept;
+import static normalisation.NormalisationUtils.isSubclassBCConcept;
+import static normalisation.NormalisationUtils.isSuperclassBCConcept;
 
 public class OntologyIndexer {
 
