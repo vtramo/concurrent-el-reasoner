@@ -7,9 +7,9 @@ This project is based on the following articles:
 - [Concurrent Classification of EL Ontologies](https://iccl.inf.tu-dresden.de/w/images/c/c3/Kazakov-Kroetzsch-Simancik_concurrent-el-reasoning_ISWC2011.pdf)
 - [ELK Reasoner: Architecture and Evaluation](https://ceur-ws.org/Vol-858/ore2012_paper10.pdf)
 
-## Usage examplee
+## Usage example
 ```java
-public static void main(String[] args) {
+void main() {
     
     OWLOntology ontology;
     
@@ -28,6 +28,17 @@ public static void main(String[] args) {
     // Build subsumption hierarchy
     SubsumptionHierarchyProcess subsumptionHierarchyProcess = new SubsumptionHierarchyProcess();
     SubsumptionHierarchy subsumptionHierarchy = subsumptionHierarchyProcess.buildHierarchy(saturationResult);
+    
+}
+```
+## Usage Example (OWL API)
+```java
+void main() {
+
+    OWLOntology ontology;
+    OWLReasonerFactory owlReasonerFactory = new ELPPReasonerFactory();
+    OWLReasoner myReasoner = owlReasonerFactory.createReasoner(ontology);
+    myReasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
     
 }
 ```
