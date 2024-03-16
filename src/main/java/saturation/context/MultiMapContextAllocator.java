@@ -1,6 +1,7 @@
 package saturation.context;
 
 import index.OntologyIndex;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.*;
@@ -9,9 +10,9 @@ import static normalisation.NormalisationUtils.isSubclassBCConcept;
 import static normalisation.NormalisationUtils.isSuperclassBCConcept;
 
 public class MultiMapContextAllocator implements ContextAllocator {
-    private final Map<OWLClassExpression, Set<Context>> CR1CR2CR3Contexts = new HashMap<>();
-    private final Map<OWLClassExpression, Context> CR4Contexts = new HashMap<>();
-    private final Map<OWLClassExpression, Context> CR5Contexts = new HashMap<>();
+    private final Map<OWLObject, Set<Context>> CR1CR2CR3Contexts = new HashMap<>();
+    private final Map<OWLObject, Context> CR4Contexts = new HashMap<>();
+    private final Map<OWLObject, Context> CR5Contexts = new HashMap<>();
     private final Map<OWLIndividual, Context> CR6Contexts = new HashMap<>();
     private final OWLOntology ontology;
     private final OntologyIndex ontologyIndex;
@@ -59,11 +60,20 @@ public class MultiMapContextAllocator implements ContextAllocator {
             }
 
             case OWLIndividual individual -> {
+                OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
+                OWLObjectOneOf owlObjectOneOf = owlDataFactory.getOWLObjectOneOf(individual);
+                ContextCR1 contextCR1 = new ContextCR1(owlObjectOneOf, ontologyIndex.getToldSups());
+                ContextCR2 contextCR2 = new ContextCR2(owlObjectOneOf, ontologyIndex.getSuperclassesByIntersectionOperands());
+                ContextCR3 contextCR3 = new ContextCR3(owlObjectOneOf, ontologyIndex.getExistentialRightSetBySubclass());
+                ContextCR4 contextCR4 = new ContextCR4(owlObjectOneOf, ontologyIndex.getGciLeftExistentialIndex());
+                ContextCR5 contextCR5 = new ContextCR5(owlObjectOneOf);
                 ContextCR6 contextCR6 = new ContextCR6(individual);
 
+                CR1CR2CR3Contexts.put(owlObjectOneOf, Set.of(contextCR1, contextCR2, contextCR3));
+                CR4Contexts.put(owlObjectOneOf, contextCR4);
                 CR6Contexts.put(individual, contextCR6);
 
-                yield Set.of(contextCR6);
+                yield Set.of(contextCR1, contextCR2, contextCR3, contextCR4, contextCR5, contextCR6);
             }
 
             default -> Collections.emptySet();
@@ -98,8 +108,6 @@ public class MultiMapContextAllocator implements ContextAllocator {
 
             Collection<Context> values = CR6Contexts.values();
             localContexts.addAll(values);
-
-            return localContexts;
         }
 
 
@@ -115,8 +123,6 @@ public class MultiMapContextAllocator implements ContextAllocator {
 
             Collection<Context> values = CR6Contexts.values();
             localContexts.addAll(values);
-
-            return localContexts;
         }
 
         return localContexts;
