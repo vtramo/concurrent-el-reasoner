@@ -22,25 +22,25 @@ public final class ContextCompletionRuleCR2 implements ContextCompletionRule<Con
         }
 
         OWLClassExpression subClass = premise.getSubClass();
-        Set<OWLSubClassOfAxiom> processedAxioms = context.getProcessedAxioms();
         Map<OWLClassExpression, Set<OWLClassExpression>> intersectionSuperclassesByRightOperand = superclassesByIntersectionOperandsOntologyIndex.get(superClass);
-        Set<OWLClassExpression> conclusionSuperclasses = searchConclusiveSuperclasses(subClass, processedAxioms, intersectionSuperclassesByRightOperand);
+        Set<OWLClassExpression> conclusionSuperclasses = searchConclusiveSuperclasses(subClass, context, intersectionSuperclassesByRightOperand);
 
         return buildConclusions(subClass, conclusionSuperclasses);
     }
 
     private Set<OWLClassExpression> searchConclusiveSuperclasses(
         OWLClassExpression subClass,
-        Set<OWLSubClassOfAxiom> processedAxioms,
+        ContextCR2 context,
         Map<OWLClassExpression, Set<OWLClassExpression>> intersectionSuperclassesByRightOperand
     ) {
         OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
-        Set<OWLClassExpression> conclusionSuperclasses = new HashSet<>();
+        Set<OWLSubClassOfAxiom> processedAxioms = context.getProcessedAxioms();
 
+        Set<OWLClassExpression> conclusionSuperclasses = new HashSet<>();
         for (OWLClassExpression rightOperand: intersectionSuperclassesByRightOperand.keySet()) {
             OWLSubClassOfAxiom objectivePremise = owlDataFactory.getOWLSubClassOfAxiom(subClass, rightOperand);
 
-            if (!processedAxioms.contains(objectivePremise)) {
+            if (!Objects.equals(rightOperand, context.getContextClassExpression()) && !processedAxioms.contains(objectivePremise)) {
                 continue;
             }
 

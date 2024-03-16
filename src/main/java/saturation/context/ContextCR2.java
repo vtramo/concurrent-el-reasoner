@@ -92,6 +92,10 @@ public final class ContextCR2 implements Context {
         return contextType;
     }
 
+    public OWLClassExpression getContextClassExpression() {
+        return contextClassExpression;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof ContextCR2 otherContextCR2)) return false;
