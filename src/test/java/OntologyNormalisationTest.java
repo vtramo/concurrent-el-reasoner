@@ -82,11 +82,11 @@ public class OntologyNormalisationTest {
     @Test
     @DisplayName("Normalisation Test Case 3 (Ontology A)")
     public void normaliseOntologyA() {
-        OWLOntology ontologyA = OntologyUtils.createOWLOntologyA();
+        OWLOntology ontologyA = OntologyUtils.createOWLOntologyAWithAllInferences();
         OntologyNormaliser ontologyNormaliser = new OntologyNormaliser(ontologyA);
 
         OWLOntology normalisedOntology = ontologyNormaliser.createNormalisedOntology();
 
-        assertThat(normalisedOntology.getTBoxAxioms(Imports.INCLUDED), hasSize(15));
+        assertThat(normalisedOntology.getTBoxAxioms(Imports.INCLUDED), hasSize(17));
     }
 }
