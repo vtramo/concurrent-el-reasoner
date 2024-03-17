@@ -1,6 +1,6 @@
 package saturation.context;
 
-import indexing.GCILeftExistentialIndex;
+import indexing.LeftExistentialOntologyIndex;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
@@ -15,16 +15,16 @@ public final class ContextCR4 implements Context {
     private final ContextType contextType = ContextType.CR4;
     private final OWLClassExpression contextClassExpression;
     private final Queue<OWLSubClassOfAxiom> todoAxioms = new ConcurrentLinkedQueue<>();
-    private final GCILeftExistentialIndex gciLeftExistentialOntologyIndex;
+    private final LeftExistentialOntologyIndex gciLeftExistentialOntologyIndex;
     private final Map<OWLObjectPropertyExpression, Set<OWLClassExpression>> subclassesByRoleProcessedAxioms = new HashMap<>();
     private final Set<OWLSubClassOfAxiom> simpleProcessedAxioms = new HashSet<>();
     private AtomicBoolean isActive = new AtomicBoolean(false);
 
     public ContextCR4(OWLClassExpression classExpression) {
-        this(classExpression, new GCILeftExistentialIndex());
+        this(classExpression, new LeftExistentialOntologyIndex());
     }
 
-    public ContextCR4(OWLClassExpression classExpression, GCILeftExistentialIndex gciLeftExistentialOntologyIndex) {
+    public ContextCR4(OWLClassExpression classExpression, LeftExistentialOntologyIndex gciLeftExistentialOntologyIndex) {
         this.contextClassExpression = classExpression;
         this.gciLeftExistentialOntologyIndex = gciLeftExistentialOntologyIndex;
     }
@@ -123,7 +123,7 @@ public final class ContextCR4 implements Context {
         return isActive;
     }
 
-    public GCILeftExistentialIndex getGciLeftExistentialOntologyIndex() {
+    public LeftExistentialOntologyIndex getGciLeftExistentialOntologyIndex() {
         return gciLeftExistentialOntologyIndex;
     }
 

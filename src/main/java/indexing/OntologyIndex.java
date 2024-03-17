@@ -9,7 +9,7 @@ public class OntologyIndex {
     private final Map<OWLClassExpression, Set<OWLClassExpression>> toldSups = new HashMap<>();
     private final Map<OWLClassExpression, Map<OWLClassExpression, Set<OWLClassExpression>>> superclassesByIntersectionOperands = new HashMap<>();
     private final Map<OWLClassExpression, Set<RoleAndFiller>> existentialRightSetBySubclass = new HashMap<>();
-    private final GCILeftExistentialIndex gciLeftExistentialIndex = new GCILeftExistentialIndex();
+    private final LeftExistentialOntologyIndex leftExistentialOntologyIndex = new LeftExistentialOntologyIndex();
 
     public boolean putInToldSups(OWLClassExpression subclass, OWLClassExpression superclass) {
         return toldSups
@@ -42,8 +42,8 @@ public class OntologyIndex {
             .add(rightRoleAndFiller);
     }
 
-    public boolean putInGciLeftExistentialIndex(RoleAndFiller roleAndFiller, OWLClassExpression superclass) {
-        return gciLeftExistentialIndex.put(roleAndFiller, superclass);
+    public boolean putInLeftExistentialOntologyIndex(RoleAndFiller roleAndFiller, OWLClassExpression superclass) {
+        return leftExistentialOntologyIndex.put(roleAndFiller, superclass);
     }
 
     public Map<OWLClassExpression, Set<OWLClassExpression>> getToldSups() {
@@ -58,7 +58,7 @@ public class OntologyIndex {
         return Collections.unmodifiableMap(existentialRightSetBySubclass);
     }
 
-    public GCILeftExistentialIndex getGciLeftExistentialIndex() {
-        return gciLeftExistentialIndex;
+    public LeftExistentialOntologyIndex getGciLeftExistentialIndex() {
+        return leftExistentialOntologyIndex;
     }
 }

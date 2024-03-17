@@ -49,7 +49,7 @@ public class OntologyIndexer {
         if (subClass instanceof OWLObjectSomeValuesFrom objectSomeValuesFrom && isSuperclassBCConcept(superClass)) {
             OWLObjectPropertyExpression role = objectSomeValuesFrom.getProperty();
             OWLClassExpression filler = objectSomeValuesFrom.getFiller();
-            index.putInGciLeftExistentialIndex(new RoleAndFiller(role, filler), superClass);
+            index.putInLeftExistentialOntologyIndex(new RoleAndFiller(role, filler), superClass);
         }
     }
 }

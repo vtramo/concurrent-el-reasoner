@@ -1,6 +1,6 @@
 package saturation.rules;
 
-import indexing.GCILeftExistentialIndex;
+import indexing.LeftExistentialOntologyIndex;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import saturation.context.ContextCR4;
@@ -25,7 +25,7 @@ public final class ContextCompletionRuleCR4 implements ContextCompletionRule<Con
     }
 
     private Set<OWLSubClassOfAxiom> processRightExistentialPremise(OWLClassExpression subClass,  OWLObjectPropertyExpression role, ContextCR4 context) {
-        GCILeftExistentialIndex gciLeftExistentialOntologyIndex = context.getGciLeftExistentialOntologyIndex();
+        LeftExistentialOntologyIndex gciLeftExistentialOntologyIndex = context.getGciLeftExistentialOntologyIndex();
 
         if (!gciLeftExistentialOntologyIndex.containsRole(role)) {
             return Collections.emptySet();
@@ -51,7 +51,7 @@ public final class ContextCompletionRuleCR4 implements ContextCompletionRule<Con
     }
 
     private Set<OWLSubClassOfAxiom> processSimplePremise(OWLClassExpression superClass, ContextCR4 context) {
-        GCILeftExistentialIndex gciLeftExistentialOntologyIndex = context.getGciLeftExistentialOntologyIndex();
+        LeftExistentialOntologyIndex gciLeftExistentialOntologyIndex = context.getGciLeftExistentialOntologyIndex();
 
         if (!gciLeftExistentialOntologyIndex.containsFiller(superClass)) {
             return Collections.emptySet();

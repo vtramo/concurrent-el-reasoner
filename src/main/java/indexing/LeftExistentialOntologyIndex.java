@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class GCILeftExistentialIndex {
+public class LeftExistentialOntologyIndex {
     private final Map<OWLObjectPropertyExpression, Map<OWLClassExpression, Set<OWLClassExpression>>> superclassesBySubclassRoleFillerMap = new HashMap<>();
     private final Map<OWLClassExpression, Map<OWLObjectPropertyExpression, Set<OWLClassExpression>>> superclassesBySubclassFillerRoleMap = new HashMap<>();
 
