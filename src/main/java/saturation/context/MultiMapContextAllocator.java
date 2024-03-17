@@ -23,7 +23,7 @@ public class MultiMapContextAllocator implements ContextAllocator {
     }
 
     @Override
-    public Collection<Context> initContexts() {
+    public Collection<Context> allocateContexts() {
         clearContexts();
 
         Set<OWLEntity> signature = ontology.getSignature();

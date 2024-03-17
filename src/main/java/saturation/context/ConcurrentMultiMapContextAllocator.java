@@ -29,7 +29,7 @@ public class ConcurrentMultiMapContextAllocator implements ContextAllocator {
     }
 
     @Override
-    public Collection<Context> initContexts() {
+    public Collection<Context> allocateContexts() {
         clearAll();
 
         Set<Context> individualContexts = initIndividualContexts(ontology);

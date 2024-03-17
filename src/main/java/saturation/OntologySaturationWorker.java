@@ -72,7 +72,7 @@ public class OntologySaturationWorker extends Thread implements ContextVisitor {
 
         processedContexts.add(contextCR1);
 
-        processConclusions(contextCR1, conclusions);
+        processConclusions(conclusions);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class OntologySaturationWorker extends Thread implements ContextVisitor {
 
         processedContexts.add(contextCR2);
 
-        processConclusions(contextCR2, conclusions);
+        processConclusions(conclusions);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class OntologySaturationWorker extends Thread implements ContextVisitor {
 
         processedContexts.add(contextCR3);
 
-        processConclusions(contextCR3, conclusions);
+        processConclusions(conclusions);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class OntologySaturationWorker extends Thread implements ContextVisitor {
 
         processedContexts.add(contextCR4);
 
-        processConclusions(contextCR4, conclusions);
+        processConclusions(conclusions);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class OntologySaturationWorker extends Thread implements ContextVisitor {
 
         processedContexts.add(contextCR5);
 
-        processConclusions(contextCR5, conclusions);
+        processConclusions(conclusions);
     }
 
     @Override
@@ -127,13 +127,10 @@ public class OntologySaturationWorker extends Thread implements ContextVisitor {
 
         processedContexts.add(contextCR6);
 
-        processConclusions(contextCR6, conclusions);
+        processConclusions(conclusions);
     }
 
-    private void processConclusions(Context processedContext, Collection<OWLSubClassOfAxiom> conclusions) {
-        if (!processedContext.isInitialized()) {
-            conclusions.addAll(processedContext.initialize());
-        }
+    private void processConclusions(Collection<OWLSubClassOfAxiom> conclusions) {
 
         for (OWLSubClassOfAxiom conclusion: conclusions) {
             for (Context conclusionContext: contextAllocator.getContexts(conclusion)) {

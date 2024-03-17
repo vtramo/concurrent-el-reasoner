@@ -61,11 +61,23 @@ public class OntologySaturationProcess {
     private void createInitialContexts() {
         clearProcess();
 
-        contextAllocator.initContexts();
+        contextAllocator.allocateContexts();
         for (OWLSubClassOfAxiom axiom: ontology.getAxioms(AxiomType.SUBCLASS_OF)) {
             Collection<Context> contexts = contextAllocator.getContexts(axiom);
-            if (contexts.isEmpty()) discardedAxioms.add(axiom);
+
+            if (contexts.isEmpty()) {
+                discardedAxioms.add(axiom);
+                continue;
+            }
+
             for (Context context: contexts) {
+                if (!context.isInitialized()) {
+                    Set<OWLSubClassOfAxiom> initialAxioms = context.initialize();
+                    initialAxioms
+                        .forEach(initialAxiom -> contextAllocator.getContexts(initialAxiom)
+                            .forEach(initialContext -> initialContext.addTodoAxiom(initialAxiom)));
+                }
+
                 context.addTodoAxiom(axiom);
                 activeContexts.activateContext(context);
             }

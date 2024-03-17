@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface ContextAllocator {
 
-    Collection<Context> initContexts();
+    Collection<Context> allocateContexts();
     Collection<Context> getContexts(OWLSubClassOfAxiom axiom);
 
 }
