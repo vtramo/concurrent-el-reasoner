@@ -104,7 +104,7 @@ public final class ContextCR3 implements Context {
 
         isInitialized = true;
 
-        return new HashSet<>() {{ add(selfSubClassOf); }};
+        return new HashSet<>() {{ add(selfSubClassOf); add(subClassOfThing); }};
     }
 
     public Map<OWLClassExpression, Set<RoleAndFiller>> getExistentialRightSetBySubclassOntologyIndex() {

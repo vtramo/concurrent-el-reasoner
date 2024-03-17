@@ -9,6 +9,8 @@ import saturation.SaturationResult;
 import java.util.*;
 
 public class SubsumptionHierarchyProcess {
+    private static final OWLClass thing = OWLManager.getOWLDataFactory().getOWLThing();
+    private static final OWLClass nothing = OWLManager.getOWLDataFactory().getOWLNothing();
     private final Map<OWLClassExpression, Set<OWLClassExpression>> superclassesMap = new HashMap<>();
     private final Map<OWLClassExpression, Set<OWLClassExpression>> equivalentClassesMap = new HashMap<>();
     private final Map<OWLClassExpression, Set<OWLClassExpression>> directSuperclassesMap = new HashMap<>();
@@ -31,12 +33,12 @@ public class SubsumptionHierarchyProcess {
 
             if (subClass instanceof OWLObjectSomeValuesFrom someValuesFrom) {
                 OWLClassExpression filler = someValuesFrom.getFiller();
-                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>());
+                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>() {{ add(thing); }});
             }
 
             if (superClass instanceof OWLObjectSomeValuesFrom someValuesFrom) {
                 OWLClassExpression filler = someValuesFrom.getFiller();
-                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>());
+                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>() {{ add(thing); }});
             }
 
             if ((subClass  .isClassExpressionLiteral() || subClass   instanceof OWLObjectOneOf) &&
@@ -46,7 +48,7 @@ public class SubsumptionHierarchyProcess {
                     .computeIfAbsent(subClass, __ -> new HashSet<>())
                     .add(superClass);
 
-                superclassesMap.computeIfAbsent(superClass, __ -> new HashSet<>());
+                superclassesMap.computeIfAbsent(superClass, __ -> new HashSet<>() {{ add(thing); }});
 
             }
         }
@@ -115,13 +117,10 @@ public class SubsumptionHierarchyProcess {
             }
         }
 
-        OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
-        OWLClass owlThing = owlDataFactory.getOWLThing();
-        OWLClass owlNothing = owlDataFactory.getOWLNothing();
-        OWLClassNode owlThingClassNode = new OWLClassNode(owlThing);
-        OWLClassNode owlNothingClassNode = new OWLClassNode(owlNothing);
-        nodeByClass.put(owlThing, owlThingClassNode);
-        nodeByClass.put(owlNothing, owlNothingClassNode);
+        OWLClassNode owlThingClassNode = new OWLClassNode(thing);
+        OWLClassNode owlNothingClassNode = new OWLClassNode(nothing);
+        nodeByClass.put(thing, owlThingClassNode);
+        nodeByClass.put(nothing, owlNothingClassNode);
 
         for (OWLClassExpression conceptKey: directSuperclassesMap.keySet()) {
             if (conceptKey instanceof OWLClass owlClassKey) {

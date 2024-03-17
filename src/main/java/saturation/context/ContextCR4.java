@@ -18,7 +18,7 @@ public final class ContextCR4 implements Context {
     private final LeftExistentialOntologyIndex gciLeftExistentialOntologyIndex;
     private final Map<OWLObjectPropertyExpression, Set<OWLClassExpression>> subclassesByRoleProcessedAxioms = new HashMap<>();
     private final Set<OWLSubClassOfAxiom> simpleProcessedAxioms = new HashSet<>();
-    private AtomicBoolean isActive = new AtomicBoolean(false);
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
 
     private boolean isInitialized;
 

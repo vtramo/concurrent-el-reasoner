@@ -23,7 +23,7 @@ public final class ContextCR6 implements Context {
     private final Map<OWLClassExpression, Set<OWLClassExpression>> simpleSuperclassesBySubclassProcessedAxiomsMap = new HashMap<>();
     private final Set<OWLSubClassOfAxiom> processedAxioms = new HashSet<>();
     private final MutableGraph<OWLObject> graph = GraphBuilder.directed().build();
-    private AtomicBoolean isActive = new AtomicBoolean(false);
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
 
     private boolean isInitialized;
 
