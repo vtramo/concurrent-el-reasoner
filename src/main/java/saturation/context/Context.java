@@ -3,8 +3,8 @@ package saturation.context;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ThreadSafe
@@ -16,9 +16,13 @@ public sealed interface Context permits ContextCR1, ContextCR2, ContextCR3, Cont
 
     boolean addProcessedAxiom(OWLSubClassOfAxiom axiom);
     boolean containsProcessedAxiom(OWLSubClassOfAxiom axiom);
-    Collection<OWLSubClassOfAxiom> getProcessedAxioms();
+    Set<OWLSubClassOfAxiom> getProcessedAxioms();
 
     void accept(ContextVisitor contextVisitor);
 
     AtomicBoolean getIsActive();
+
+    boolean isInitialized();
+    Set<OWLSubClassOfAxiom> initialize();
+
 }

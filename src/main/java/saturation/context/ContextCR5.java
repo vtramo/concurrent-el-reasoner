@@ -1,6 +1,8 @@
 package saturation.context;
 
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLObjectSomeValuesFrom;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 
@@ -17,6 +19,8 @@ public final class ContextCR5 implements Context {
     private final Set<OWLSubClassOfAxiom> existentialRightProcessedAxioms = new HashSet<>();
     private OWLSubClassOfAxiom processedSubclassOfNothingAxiom;
     private final AtomicBoolean isActive = new AtomicBoolean(false);
+
+    private boolean isInitialized;
 
     public ContextCR5(OWLClassExpression contextClassExpression) {
         this.contextClassExpression = contextClassExpression;
@@ -79,7 +83,7 @@ public final class ContextCR5 implements Context {
     }
 
     @Override
-    public Collection<OWLSubClassOfAxiom> getProcessedAxioms() {
+    public Set<OWLSubClassOfAxiom> getProcessedAxioms() {
         Set<OWLSubClassOfAxiom> processedAxioms = new HashSet<>(existentialRightProcessedAxioms);
 
         if (processedSubclassOfNothingAxiom != null) {
@@ -107,6 +111,25 @@ public final class ContextCR5 implements Context {
     @Override
     public AtomicBoolean getIsActive() {
         return isActive;
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    @Override
+    public Set<OWLSubClassOfAxiom> initialize() {
+        if (isInitialized) throw new IllegalStateException();
+
+        OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
+
+        OWLSubClassOfAxiom selfSubClassOf = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, contextClassExpression);
+        OWLSubClassOfAxiom subClassOfThing = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, owlDataFactory.getOWLThing());
+
+        isInitialized = true;
+
+        return new HashSet<>() {{ add(selfSubClassOf); add(subClassOfThing); }};
     }
 
     public Optional<OWLSubClassOfAxiom> getProcessedSubclassOfNothingAxiom() {

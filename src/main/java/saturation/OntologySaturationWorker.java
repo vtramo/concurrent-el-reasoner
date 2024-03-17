@@ -68,69 +68,73 @@ public class OntologySaturationWorker extends Thread implements ContextVisitor {
     public void visit(ContextCR1 contextCR1) {
         ContextCompletionRule<ContextCR1> completionRule = completionRuleFactory.buildContextContextCompletionRule(contextCR1);
 
-        Collection<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR1);
+        Set<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR1);
 
         processedContexts.add(contextCR1);
 
-        processConclusions(conclusions);
+        processConclusions(contextCR1, conclusions);
     }
 
     @Override
     public void visit(ContextCR2 contextCR2) {
         ContextCompletionRule<ContextCR2> completionRule = completionRuleFactory.buildContextContextCompletionRule(contextCR2);
 
-        Collection<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR2);
+        Set<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR2);
 
         processedContexts.add(contextCR2);
 
-        processConclusions(conclusions);
+        processConclusions(contextCR2, conclusions);
     }
 
     @Override
     public void visit(ContextCR3 contextCR3) {
         ContextCompletionRule<ContextCR3> completionRule = completionRuleFactory.buildContextContextCompletionRule(contextCR3);
 
-        Collection<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR3);
+        Set<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR3);
 
         processedContexts.add(contextCR3);
 
-        processConclusions(conclusions);
+        processConclusions(contextCR3, conclusions);
     }
 
     @Override
     public void visit(ContextCR4 contextCR4) {
         ContextCompletionRule<ContextCR4> completionRule = completionRuleFactory.buildContextContextCompletionRule(contextCR4);
 
-        Collection<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR4);
+        Set<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR4);
 
         processedContexts.add(contextCR4);
 
-        processConclusions(conclusions);
+        processConclusions(contextCR4, conclusions);
     }
 
     @Override
     public void visit(ContextCR5 contextCR5) {
         ContextCompletionRule<ContextCR5> completionRule = completionRuleFactory.buildContextContextCompletionRule(contextCR5);
 
-        Collection<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR5);
+        Set<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR5);
 
         processedContexts.add(contextCR5);
 
-        processConclusions(conclusions);
+        processConclusions(contextCR5, conclusions);
     }
 
     @Override
     public void visit(ContextCR6 contextCR6) {
         ContextCompletionRule<ContextCR6> completionRule = completionRuleFactory.buildContextContextCompletionRule(contextCR6);
 
-        Collection<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR6);
+        Set<OWLSubClassOfAxiom> conclusions = completionRule.apply(currentPolledAxiom, contextCR6);
 
         processedContexts.add(contextCR6);
 
-        processConclusions(conclusions);
+        processConclusions(contextCR6, conclusions);
     }
 
-    private void processConclusions(Collection<OWLSubClassOfAxiom> conclusions) {
+    private void processConclusions(Context processedContext, Collection<OWLSubClassOfAxiom> conclusions) {
+        if (!processedContext.isInitialized()) {
+            conclusions.addAll(processedContext.initialize());
+        }
+
         for (OWLSubClassOfAxiom conclusion: conclusions) {
             for (Context conclusionContext: contextAllocator.getContexts(conclusion)) {
                 conclusionContext.addTodoAxiom(conclusion);

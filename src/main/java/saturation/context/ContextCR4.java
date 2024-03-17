@@ -20,6 +20,8 @@ public final class ContextCR4 implements Context {
     private final Set<OWLSubClassOfAxiom> simpleProcessedAxioms = new HashSet<>();
     private AtomicBoolean isActive = new AtomicBoolean(false);
 
+    private boolean isInitialized;
+
     public ContextCR4(OWLClassExpression classExpression) {
         this(classExpression, new LeftExistentialOntologyIndex());
     }
@@ -98,7 +100,7 @@ public final class ContextCR4 implements Context {
     }
 
     @Override
-    public Collection<OWLSubClassOfAxiom> getProcessedAxioms() {
+    public Set<OWLSubClassOfAxiom> getProcessedAxioms() {
         Set<OWLSubClassOfAxiom> processedAxioms = new HashSet<>(simpleProcessedAxioms);
 
         OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
@@ -122,6 +124,26 @@ public final class ContextCR4 implements Context {
     public AtomicBoolean getIsActive() {
         return isActive;
     }
+
+    @Override
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    @Override
+    public Set<OWLSubClassOfAxiom> initialize() {
+        if (isInitialized) throw new IllegalStateException();
+
+        OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
+
+        OWLSubClassOfAxiom selfSubClassOf = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, contextClassExpression);
+        OWLSubClassOfAxiom subClassOfThing = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, owlDataFactory.getOWLThing());
+
+        isInitialized = true;
+
+        return new HashSet<>() {{ add(selfSubClassOf); add(subClassOfThing); }};
+    }
+
 
     public LeftExistentialOntologyIndex getGciLeftExistentialOntologyIndex() {
         return gciLeftExistentialOntologyIndex;

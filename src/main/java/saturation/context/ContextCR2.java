@@ -1,6 +1,8 @@
 package saturation.context;
 
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 
 import java.util.*;
@@ -17,6 +19,8 @@ public final class ContextCR2 implements Context {
     private final Set<OWLSubClassOfAxiom> processedAxioms = new HashSet<>();
     private final Map<OWLClassExpression, Map<OWLClassExpression, Set<OWLClassExpression>>> superclassesByIntersectionOperandsOntologyIndex;
     private final AtomicBoolean isActive = new AtomicBoolean(false);
+
+    private boolean isInitialized;
 
     public ContextCR2(OWLClassExpression contextClassExpression) { this(contextClassExpression, Collections.emptyMap()); }
 
@@ -83,6 +87,26 @@ public final class ContextCR2 implements Context {
     public AtomicBoolean getIsActive() {
         return isActive;
     }
+
+    @Override
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    @Override
+    public Set<OWLSubClassOfAxiom> initialize() {
+        if (isInitialized) throw new IllegalStateException();
+
+        OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
+
+        OWLSubClassOfAxiom selfSubClassOf = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, contextClassExpression);
+        OWLSubClassOfAxiom subClassOfThing = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, owlDataFactory.getOWLThing());
+
+        isInitialized = true;
+
+        return new HashSet<>() {{ add(selfSubClassOf); add(subClassOfThing); }};
+    }
+
 
     public Map<OWLClassExpression, Map<OWLClassExpression, Set<OWLClassExpression>>> getSuperclassesByIntersectionOperandsOntologyIndex() {
         return superclassesByIntersectionOperandsOntologyIndex;

@@ -4,6 +4,7 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.*;
@@ -23,6 +24,8 @@ public final class ContextCR6 implements Context {
     private final Set<OWLSubClassOfAxiom> processedAxioms = new HashSet<>();
     private final MutableGraph<OWLObject> graph = GraphBuilder.directed().build();
     private AtomicBoolean isActive = new AtomicBoolean(false);
+
+    private boolean isInitialized;
 
     public ContextCR6(OWLIndividual individual) {
         this.individual = individual;
@@ -123,7 +126,7 @@ public final class ContextCR6 implements Context {
     }
 
     @Override
-    public Collection<OWLSubClassOfAxiom> getProcessedAxioms() {
+    public Set<OWLSubClassOfAxiom> getProcessedAxioms() {
         return processedAxioms;
     }
 
@@ -135,6 +138,26 @@ public final class ContextCR6 implements Context {
     @Override
     public AtomicBoolean getIsActive() {
         return isActive;
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    @Override
+    public Set<OWLSubClassOfAxiom> initialize() {
+        if (isInitialized) throw new IllegalStateException();
+
+        OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
+
+        OWLObjectOneOf individualObjectOneOf = owlDataFactory.getOWLObjectOneOf(individual);
+        OWLSubClassOfAxiom selfSubClassOf = owlDataFactory.getOWLSubClassOfAxiom(individualObjectOneOf, individualObjectOneOf);
+        OWLSubClassOfAxiom subClassOfThing = owlDataFactory.getOWLSubClassOfAxiom(individualObjectOneOf, owlDataFactory.getOWLThing());
+
+        isInitialized = true;
+
+        return new HashSet<>() {{ add(selfSubClassOf); add(subClassOfThing); }};
     }
 
     public Map<OWLClassExpression, Set<OWLClassExpression>> getSimpleSuperclassesBySubclassProcessedAxiomsMap() {

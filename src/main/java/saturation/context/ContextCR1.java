@@ -1,6 +1,8 @@
 package saturation.context;
 
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 
 import java.util.*;
@@ -17,6 +19,9 @@ public final class ContextCR1 implements Context {
     private final Set<OWLSubClassOfAxiom> processedAxioms = new HashSet<>();
     private final Map<OWLClassExpression, Set<OWLClassExpression>> toldSupsOntologyIndex;
     private final AtomicBoolean isActive = new AtomicBoolean(false);
+
+    private boolean isInitialized;
+
     public ContextCR1(OWLClassExpression contextClassExpression) { this(contextClassExpression, Collections.emptyMap()); }
 
     public ContextCR1(OWLClassExpression contextClassExpression, Map<OWLClassExpression, Set<OWLClassExpression>> toldSupsOntologyIndex) {
@@ -65,7 +70,7 @@ public final class ContextCR1 implements Context {
     }
 
     @Override
-    public Collection<OWLSubClassOfAxiom> getProcessedAxioms() {
+    public Set<OWLSubClassOfAxiom> getProcessedAxioms() {
         return processedAxioms;
     }
 
@@ -77,6 +82,25 @@ public final class ContextCR1 implements Context {
     @Override
     public AtomicBoolean getIsActive() {
         return isActive;
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    @Override
+    public Set<OWLSubClassOfAxiom> initialize() {
+        if (isInitialized) throw new IllegalStateException();
+
+        OWLDataFactory owlDataFactory = OWLManager.getOWLDataFactory();
+
+        OWLSubClassOfAxiom selfSubClassOf = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, contextClassExpression);
+        OWLSubClassOfAxiom subClassOfThing = owlDataFactory.getOWLSubClassOfAxiom(contextClassExpression, owlDataFactory.getOWLThing());
+
+        isInitialized = true;
+
+        return new HashSet<>() {{ add(selfSubClassOf); add(subClassOfThing); }};
     }
 
     public Map<OWLClassExpression, Set<OWLClassExpression>> getToldSupsOntologyIndex() {
