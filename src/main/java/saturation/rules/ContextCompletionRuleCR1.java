@@ -6,18 +6,20 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import saturation.context.ContextCR1;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public final class ContextCompletionRuleCR1 implements ContextCompletionRule<ContextCR1> {
 
     @Override
-    public Collection<OWLSubClassOfAxiom> apply(OWLSubClassOfAxiom premise, ContextCR1 context) {
+    public Set<OWLSubClassOfAxiom> apply(OWLSubClassOfAxiom premise, ContextCR1 context) {
         OWLClassExpression subClass = premise.getSubClass();
         OWLClassExpression superClass = premise.getSuperClass();
 
         Map<OWLClassExpression, Set<OWLClassExpression>> superclassesBySubclassOntologyIndex = context.getToldSupsOntologyIndex();
         if (!superclassesBySubclassOntologyIndex.containsKey(superClass)) {
-            return Collections.emptyList();
+            return new HashSet<>();
         }
 
         Set<OWLClassExpression> conclusionSuperclasses = superclassesBySubclassOntologyIndex.get(superClass);

@@ -5,11 +5,13 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import saturation.context.ContextCR4;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public final class ContextCompletionRuleCR4 implements ContextCompletionRule<ContextCR4> {
     @Override
-    public Collection<OWLSubClassOfAxiom> apply(OWLSubClassOfAxiom premise, ContextCR4 context) {
+    public Set<OWLSubClassOfAxiom> apply(OWLSubClassOfAxiom premise, ContextCR4 context) {
         OWLClassExpression subClass = premise.getSubClass();
         OWLClassExpression superClass = premise.getSuperClass();
 
@@ -28,7 +30,7 @@ public final class ContextCompletionRuleCR4 implements ContextCompletionRule<Con
         LeftExistentialOntologyIndex gciLeftExistentialOntologyIndex = context.getGciLeftExistentialOntologyIndex();
 
         if (!gciLeftExistentialOntologyIndex.containsRole(role)) {
-            return Collections.emptySet();
+            return new HashSet<>();
         }
 
         Set<OWLSubClassOfAxiom> conclusions = new HashSet<>();
@@ -54,7 +56,7 @@ public final class ContextCompletionRuleCR4 implements ContextCompletionRule<Con
         LeftExistentialOntologyIndex gciLeftExistentialOntologyIndex = context.getGciLeftExistentialOntologyIndex();
 
         if (!gciLeftExistentialOntologyIndex.containsFiller(superClass)) {
-            return Collections.emptySet();
+            return new HashSet<>();
         }
 
         Set<OWLSubClassOfAxiom> conclusions = new HashSet<>();

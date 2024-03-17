@@ -11,10 +11,10 @@ import static java.util.stream.Collectors.toSet;
 
 public final class ContextCompletionRuleCR6 implements ContextCompletionRule<ContextCR6> {
     @Override
-    public Collection<OWLSubClassOfAxiom> apply(OWLSubClassOfAxiom premise, ContextCR6 context) {
+    public Set<OWLSubClassOfAxiom> apply(OWLSubClassOfAxiom premise, ContextCR6 context) {
         Set<OWLClassExpression> processedIndividualSubclasses = context.getProcessedIndividualSubclasses();
         if (processedIndividualSubclasses.size() < 2) {
-            return Collections.emptyList();
+            return new HashSet<>();
         }
 
         Set<OWLSubClassOfAxiom> conclusions = new HashSet<>();
