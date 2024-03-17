@@ -1,6 +1,6 @@
 package saturation;
 
-import index.OntologyIndex;
+import indexing.OntologyIndex;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;

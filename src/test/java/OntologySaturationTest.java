@@ -1,7 +1,7 @@
 import hierarchy.SubsumptionHierarchy;
 import hierarchy.SubsumptionHierarchyProcess;
-import index.OntologyIndex;
-import index.OntologyIndexer;
+import indexing.OntologyIndex;
+import indexing.OntologyIndexer;
 import normalisation.OntologyNormaliser;
 import org.junit.jupiter.api.Test;
 import org.semanticweb.HermiT.ReasonerFactory;

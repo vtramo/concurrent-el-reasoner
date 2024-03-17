@@ -1,7 +1,7 @@
 package saturation.context;
 
 import com.google.common.collect.ImmutableSet;
-import index.OntologyIndex;
+import indexing.OntologyIndex;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.Collection;

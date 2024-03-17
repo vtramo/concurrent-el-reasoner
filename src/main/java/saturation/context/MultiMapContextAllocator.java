@@ -1,6 +1,6 @@
 package saturation.context;
 
-import index.OntologyIndex;
+import indexing.OntologyIndex;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 

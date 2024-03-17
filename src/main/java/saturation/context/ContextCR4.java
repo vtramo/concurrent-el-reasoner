@@ -1,6 +1,6 @@
 package saturation.context;
 
-import index.GCILeftExistentialIndex;
+import indexing.GCILeftExistentialIndex;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 

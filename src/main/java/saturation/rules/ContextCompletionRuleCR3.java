@@ -1,6 +1,6 @@
 package saturation.rules;
 
-import index.RoleAndFiller;
+import indexing.RoleAndFiller;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import saturation.context.ContextCR3;

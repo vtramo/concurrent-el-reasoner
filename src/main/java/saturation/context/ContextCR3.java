@@ -1,6 +1,6 @@
 package saturation.context;
 
-import index.RoleAndFiller;
+import indexing.RoleAndFiller;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 
