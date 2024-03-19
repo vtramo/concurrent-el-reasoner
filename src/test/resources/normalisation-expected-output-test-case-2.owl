@@ -1,0 +1,50 @@
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(
+Declaration(Class(<test#Course>))
+Declaration(Class(<test#GENERATED-14186529961501255576>))
+Declaration(Class(<test#GENERATED1365723442-2051980591>))
+Declaration(Class(<test#PGC>))
+Declaration(Class(<test#Person>))
+Declaration(Class(<test#Student>))
+Declaration(Class(<test#Teacher>))
+Declaration(Class(<test#UGC>))
+Declaration(ObjectProperty(<test#attends>))
+Declaration(ObjectProperty(<test#teaches>))
+
+############################
+#   Classes
+############################
+
+# Class: <test#PGC> (<test#PGC>)
+
+SubClassOf(<test#PGC> <test#Course>)
+
+# Class: <test#Student> (<test#Student>)
+
+SubClassOf(<test#Student> <test#Person>)
+SubClassOf(<test#Student> ObjectSomeValuesFrom(<test#attends> <test#Course>))
+
+# Class: <test#Teacher> (<test#Teacher>)
+
+SubClassOf(<test#Teacher> <test#Person>)
+SubClassOf(<test#Teacher> ObjectSomeValuesFrom(<test#teaches> <test#Course>))
+
+# Class: <test#UGC> (<test#UGC>)
+
+SubClassOf(<test#UGC> <test#Course>)
+
+
+SubClassOf(ObjectIntersectionOf(<test#Course> <test#Person>) owl:Nothing)
+SubClassOf(ObjectIntersectionOf(<test#GENERATED-14186529961501255576> <test#Person>) <test#Student>)
+SubClassOf(ObjectIntersectionOf(<test#GENERATED1365723442-2051980591> <test#Person>) <test#Teacher>)
+SubClassOf(ObjectSomeValuesFrom(<test#attends> owl:Thing) <test#Person>)
+SubClassOf(ObjectSomeValuesFrom(<test#attends> <test#Course>) <test#GENERATED-14186529961501255576>)
+SubClassOf(ObjectSomeValuesFrom(<test#teaches> owl:Thing) <test#Person>)
+SubClassOf(ObjectSomeValuesFrom(<test#teaches> <test#Course>) <test#GENERATED1365723442-2051980591>)
+)

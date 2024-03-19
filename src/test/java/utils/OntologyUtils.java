@@ -64,54 +64,7 @@ public class OntologyUtils {
         return universityOntology;
     }
 
-    public static OWLOntology createOWLOntologyAWithoutCR6Inferences() {
-        OWLOntology ontology = OntologyUtils.createEmptyOWLOntology();
-        OWLOntologyManager owlOntologyManager = ontology.getOWLOntologyManager();
-        OWLDataFactory df = owlOntologyManager.getOWLDataFactory();
-        IRI iri = owlOntologyManager.getOntologyDocumentIRI(ontology);
-
-        OWLClass A = df.getOWLClass(iri + "#A");
-        OWLClass B = df.getOWLClass(iri + "#B");
-        OWLClass C = df.getOWLClass(iri + "#C");
-        OWLClass D = df.getOWLClass(iri + "#D");
-
-        OWLObjectProperty r = df.getOWLObjectProperty(iri + "#r");
-
-        OWLObjectSomeValuesFrom rA = df.getOWLObjectSomeValuesFrom(r, A);
-        OWLObjectSomeValuesFrom rB = df.getOWLObjectSomeValuesFrom(r, B);
-        OWLObjectSomeValuesFrom rC = df.getOWLObjectSomeValuesFrom(r, C);
-        OWLObjectSomeValuesFrom rrB = df.getOWLObjectSomeValuesFrom(r, rB);
-
-        OWLObjectIntersectionOf AandB = df.getOWLObjectIntersectionOf(A, B);
-        OWLObjectIntersectionOf AandC = df.getOWLObjectIntersectionOf(A, C);
-        OWLObjectIntersectionOf CandD = df.getOWLObjectIntersectionOf(C, D);
-        OWLObjectIntersectionOf BandrC = df.getOWLObjectIntersectionOf(B, rC);
-        OWLObjectIntersectionOf BandrB = df.getOWLObjectIntersectionOf(B, rB);
-        OWLObjectIntersectionOf rAandB = df.getOWLObjectIntersectionOf(rA, B);
-        OWLObjectIntersectionOf rrBandD = df.getOWLObjectIntersectionOf(rrB, D);
-        OWLObjectSomeValuesFrom rexistsAandB = df.getOWLObjectSomeValuesFrom(r, AandB);
-
-        OWLSubClassOfAxiom AsubclassofBandrC = df.getOWLSubClassOfAxiom(A, BandrC);
-        OWLSubClassOfAxiom BandrBsubclassofCandD = df.getOWLSubClassOfAxiom(BandrB, CandD);
-        OWLSubClassOfAxiom CsubclassofrAandB = df.getOWLSubClassOfAxiom(C, rAandB);
-        OWLSubClassOfAxiom rrBandDsubclassofrexistsAandB = df.getOWLSubClassOfAxiom(rrBandD, rexistsAandB);
-
-        OWLNamedIndividual individual = df.getOWLNamedIndividual(iri + "#IO");
-        OWLObjectOneOf io = df.getOWLObjectOneOf(individual);
-        OWLSubClassOfAxiom IOsubclassofaxiomC = df.getOWLSubClassOfAxiom(io, C);
-
-        ontology.add(
-            AsubclassofBandrC,
-            BandrBsubclassofCandD,
-            CsubclassofrAandB,
-            rrBandDsubclassofrexistsAandB,
-            IOsubclassofaxiomC
-        );
-
-        return ontology;
-    }
-
-    public static OWLOntology createOWLOntologyAWithoutCR6InferencesModified() {
+    public static OWLOntology createOWLOntologyA() {
         OWLOntology ontology = OntologyUtils.createEmptyOWLOntology();
         OWLOntologyManager owlOntologyManager = ontology.getOWLOntologyManager();
         OWLDataFactory df = owlOntologyManager.getOWLDataFactory();
@@ -161,7 +114,7 @@ public class OntologyUtils {
         return ontology;
     }
 
-    public static OWLOntology createOWLOntologyAWithAllInferences() {
+    public static OWLOntology createOWLOntologyB() {
         OWLOntology ontology = OntologyUtils.createEmptyOWLOntology();
         OWLOntologyManager owlOntologyManager = ontology.getOWLOntologyManager();
         OWLDataFactory df = owlOntologyManager.getOWLDataFactory();

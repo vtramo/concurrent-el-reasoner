@@ -3,13 +3,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
 import utils.OntologyUtils;
 
+import java.io.File;
+import java.util.Set;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 
 @DisplayName("Ontology Normalisation Test Suite")
 public class OntologyNormalisationTest {
@@ -63,6 +66,8 @@ public class OntologyNormalisationTest {
     @DisplayName("Normalisation Test Case 2 (Simple University)")
     class NormalisationTestCase2 {
 
+        static String EXPECTED_TBOX_PATH = "src/test/resources/normalisation-expected-output-test-case-2.owl";
+
         /*
          *   src/test/resources/normalisation-test-case-2-simple-university.png
          */
@@ -71,10 +76,24 @@ public class OntologyNormalisationTest {
         void university() {
             OWLOntology ontologyUniversity = OntologyUtils.createSimpleOntologyUniversity();
             OntologyNormaliser ontologyNormaliser = new OntologyNormaliser(ontologyUniversity);
+            Set<OWLSubClassOfAxiom> expectedTBox = buildExpectedTBox();
 
             OWLOntology normalisedOntology = ontologyNormaliser.createNormalisedOntology();
 
-            assertThat(normalisedOntology.getTBoxAxioms(Imports.INCLUDED), hasSize(equalTo(13)));
+            Set<OWLAxiom> outputTBox = normalisedOntology.getTBoxAxioms(Imports.INCLUDED);
+            assertThat(outputTBox, hasSize(equalTo(13)));
+            assertThat(outputTBox, is(equalTo(expectedTBox)));
+        }
+
+        Set<OWLSubClassOfAxiom> buildExpectedTBox() {
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            OWLOntology owlOntology;
+            try {
+                owlOntology = manager.loadOntologyFromOntologyDocument(new File(EXPECTED_TBOX_PATH));
+            } catch (OWLOntologyCreationException e) {
+                throw new RuntimeException(e);
+            }
+            return owlOntology.getAxioms(AxiomType.SUBCLASS_OF);
         }
 
     }
@@ -82,7 +101,7 @@ public class OntologyNormalisationTest {
     @Test
     @DisplayName("Normalisation Test Case 3 (Ontology A)")
     public void normaliseOntologyA() {
-        OWLOntology ontologyA = OntologyUtils.createOWLOntologyAWithAllInferences();
+        OWLOntology ontologyA = OntologyUtils.createOWLOntologyB();
         OntologyNormaliser ontologyNormaliser = new OntologyNormaliser(ontologyA);
 
         OWLOntology normalisedOntology = ontologyNormaliser.createNormalisedOntology();

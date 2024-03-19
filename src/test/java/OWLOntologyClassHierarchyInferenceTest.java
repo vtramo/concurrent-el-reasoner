@@ -16,8 +16,8 @@ import static org.hamcrest.Matchers.is;
 public class OWLOntologyClassHierarchyInferenceTest {
 
     @Test
-    public void testWithoutCR6InferencesModified() {
-        OWLOntology ontology = OntologyUtils.createOWLOntologyAWithoutCR6InferencesModified();
+    public void testOntologyA() {
+        OWLOntology ontology = OntologyUtils.createOWLOntologyA();
         OWLReasonerFactory owlReasonerFactory = new ELPPReasonerFactory();
         OWLReasoner myReasoner = owlReasonerFactory.createReasoner(ontology);
 
@@ -40,8 +40,8 @@ public class OWLOntologyClassHierarchyInferenceTest {
     }
 
     @Test
-    public void testWithAllInferences() {
-        OWLOntology ontology = OntologyUtils.createOWLOntologyAWithAllInferences();
+    public void testOntologyB() {
+        OWLOntology ontology = OntologyUtils.createOWLOntologyB();
         OWLReasonerFactory owlReasonerFactory = new ELPPReasonerFactory();
         OWLReasoner myReasoner = owlReasonerFactory.createReasoner(ontology);
 
