@@ -15,6 +15,6 @@ public interface NormalisationRule {
 
     static OWLClass generateClass(IRI ontologyIRI, OWLClassExpression subclass, OWLClassExpression superclass) {
         OWLDataFactoryImpl owlDataFactory = new OWLDataFactoryImpl();
-        return owlDataFactory.getOWLClass(ontologyIRI + GENERATED_CLASS + subclass.hashCode() + superclass.hashCode());
+        return owlDataFactory.getOWLClass(ontologyIRI + GENERATED_CLASS + subclass.toString().hashCode() + superclass.toString().hashCode());
     }
 }
