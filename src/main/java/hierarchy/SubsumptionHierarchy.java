@@ -70,7 +70,13 @@ public class SubsumptionHierarchy {
     public OWLClassNodeSet getOriginalSuperClasses(OWLClass owlClass) {
         if (NormalisationUtils.isGenerated(owlClass)) throw new IllegalArgumentException();
         OWLClassNodeSet classNodeSet = getSuperClasses(owlClass);
-        return filterGeneratedClasses(classNodeSet);
+        OWLClassNodeSet filteredClassNodeSet = filterGeneratedClasses(classNodeSet);
+
+        if (filteredClassNodeSet.isEmpty() && !owlClass.isOWLThing()) {
+            filteredClassNodeSet.addNode(new OWLClassNode(owlDataFactory.getOWLThing()));
+        }
+
+        return filteredClassNodeSet;
     }
 
     public OWLClassNodeSet getDirectSubClasses(OWLClass owlClass) {
@@ -89,7 +95,7 @@ public class SubsumptionHierarchy {
         OWLClassNodeSet classNodeSet = getDirectSuperClasses(owlClass);
         OWLClassNodeSet filteredClassNodeSet = filterGeneratedClasses(classNodeSet);
 
-        if (filteredClassNodeSet.isEmpty()) {
+        if (!owlClass.isOWLThing() && filteredClassNodeSet.isEmpty()) {
             filteredClassNodeSet.addNode(new OWLClassNode(owlDataFactory.getOWLThing()));
         }
 
@@ -112,7 +118,7 @@ public class SubsumptionHierarchy {
         OWLClassNodeSet classNodeSet = getDirectSubClasses(owlClass);
         OWLClassNodeSet filteredClassNodeSet = filterGeneratedClasses(classNodeSet);
 
-        if (filteredClassNodeSet.isEmpty()) {
+        if (filteredClassNodeSet.isEmpty() && !owlClass.isOWLNothing()) {
             filteredClassNodeSet.addNode(new OWLClassNode(owlDataFactory.getOWLNothing()));
         }
 

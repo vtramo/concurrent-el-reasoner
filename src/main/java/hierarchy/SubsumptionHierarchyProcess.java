@@ -27,28 +27,70 @@ public class SubsumptionHierarchyProcess {
     }
 
     private void buildSuperConceptsMap(Set<OWLSubClassOfAxiom> axioms) {
+        directSuperclassesMap.put(nothing, new HashSet<>());
+        superclassesMap.put(thing, new HashSet<>());
+        superclassesMap.put(nothing, new HashSet<>());
         for (OWLSubClassOfAxiom axiom: axioms) {
             OWLClassExpression subClass = axiom.getSubClass();
             OWLClassExpression superClass = axiom.getSuperClass();
 
+            if (subClass instanceof OWLClass && !subClass.isOWLNothing()) {
+                superclassesMap.get(nothing).add(subClass);
+            }
+
+            if (superClass instanceof OWLClass && !superClass.isOWLNothing()) {
+                superclassesMap.get(nothing).add(superClass);
+            }
+
             if (subClass instanceof OWLObjectSomeValuesFrom someValuesFrom) {
                 OWLClassExpression filler = someValuesFrom.getFiller();
-                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>() {{ add(thing); }});
+
+                if (!filler.isOWLNothing()) {
+                    superclassesMap.get(nothing).add(filler);
+                }
+
+                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>() {{
+                    if (!filler.isOWLThing()) {
+                        add(thing);
+                    }
+                }});
             }
 
             if (superClass instanceof OWLObjectSomeValuesFrom someValuesFrom) {
                 OWLClassExpression filler = someValuesFrom.getFiller();
-                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>() {{ add(thing); }});
+
+                if (!filler.isOWLNothing()) {
+                    superclassesMap.get(nothing).add(filler);
+                }
+
+                superclassesMap.computeIfAbsent(filler, __ -> new HashSet<>() {{
+                    if (!filler.isOWLThing()) {
+                        add(thing);
+                    }
+                }});
             }
 
             if ((subClass  .isClassExpressionLiteral() || subClass   instanceof OWLObjectOneOf) &&
                 (superClass.isClassExpressionLiteral() || superClass instanceof OWLObjectOneOf)) {
 
-                superclassesMap
-                    .computeIfAbsent(subClass, __ -> new HashSet<>())
-                    .add(superClass);
+                if (!subClass.isOWLNothing()) {
+                    superclassesMap.get(nothing).add(subClass);
+                }
 
-                superclassesMap.computeIfAbsent(superClass, __ -> new HashSet<>() {{ add(thing); }});
+                if (!superClass.isOWLNothing()) {
+                    superclassesMap.get(nothing).add(superClass);
+                }
+
+                Set<OWLClassExpression> owlClassExpressions = superclassesMap.computeIfAbsent(subClass, __ -> new HashSet<>());
+                if (!subClass.isOWLThing()) {
+                    owlClassExpressions.add(superClass);
+                }
+
+                superclassesMap.computeIfAbsent(superClass, __ -> new HashSet<>() {{
+                    if (!superClass.isOWLThing()) {
+                        add(thing);
+                    }
+                }});
 
             }
         }
@@ -149,15 +191,22 @@ public class SubsumptionHierarchyProcess {
         for (OWLClassExpression conceptKey: superclassesMap.keySet()) {
             if (conceptKey instanceof OWLClass owlClassKey) {
                 OWLClassNode owlClassNodeKey = nodeByClass.computeIfAbsent(owlClassKey, __ -> new OWLClassNode(owlClassKey));
-                directSuperclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlThingClassNode));
-                directSubclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
-                subclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
+
+                if (!owlClassKey.isOWLThing()) {
+                    directSuperclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlThingClassNode));
+                }
+
+                if (!owlClassKey.isOWLNothing()) {
+                    directSubclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
+                    subclassesByClassNode.computeIfAbsent(owlClassNodeKey, __ -> new OWLClassNodeSet(owlNothingClassNode));
+                    superclassesByClassNode.computeIfAbsent(owlNothingClassNode, __ -> new OWLClassNodeSet()).addNode(owlClassNodeKey);
+                }
 
                 if (superclassesByClassNode.containsKey(owlClassNodeKey)) {
                     continue;
                 }
 
-                OWLClassNodeSet owlSuperClassesNodeSet = new OWLClassNodeSet(owlThingClassNode);
+                OWLClassNodeSet owlSuperClassesNodeSet = owlClassKey.isOWLThing() ? new OWLClassNodeSet() : new OWLClassNodeSet(owlThingClassNode);
                 for (OWLClassExpression superConcept: superclassesMap.get(conceptKey)) {
                     if (superConcept instanceof OWLClass owlSuperClass) {
                         OWLClassNode owlSuperClassNode = nodeByClass.computeIfAbsent(owlSuperClass, __ -> new OWLClassNode(owlSuperClass));
@@ -169,7 +218,7 @@ public class SubsumptionHierarchyProcess {
                         owlSuperClassesNodeSet.addNode(owlSuperClassNode);
 
                         subclassesByClassNode
-                            .computeIfAbsent(owlSuperClassNode, __ -> new OWLClassNodeSet(owlNothingClassNode))
+                            .computeIfAbsent(owlSuperClassNode, __ -> owlSuperClass.isOWLNothing() ? new OWLClassNodeSet() : new OWLClassNodeSet(owlNothingClassNode))
                             .addNode(owlClassNodeKey);
                     }
                 }
@@ -177,6 +226,15 @@ public class SubsumptionHierarchyProcess {
                 superclassesByClassNode.put(owlClassNodeKey, owlSuperClassesNodeSet);
             }
         }
+
+        directSuperclassesByClassNode.computeIfAbsent(owlThingClassNode, __ -> new OWLClassNodeSet());
+        directSuperclassesByClassNode.computeIfAbsent(owlNothingClassNode, __ -> new OWLClassNodeSet());
+        directSubclassesByClassNode.computeIfAbsent(owlThingClassNode, __ -> new OWLClassNodeSet());
+        directSubclassesByClassNode.computeIfAbsent(owlNothingClassNode, __ -> new OWLClassNodeSet());
+        subclassesByClassNode.computeIfAbsent(owlThingClassNode, __ -> new OWLClassNodeSet());
+        subclassesByClassNode.computeIfAbsent(owlNothingClassNode, __ -> new OWLClassNodeSet());
+        superclassesByClassNode.computeIfAbsent(owlThingClassNode, __ -> new OWLClassNodeSet());
+        superclassesByClassNode.computeIfAbsent(owlNothingClassNode, __ -> new OWLClassNodeSet());
 
         return new SubsumptionHierarchyBuilder()
             .nodeByClass(nodeByClass)
