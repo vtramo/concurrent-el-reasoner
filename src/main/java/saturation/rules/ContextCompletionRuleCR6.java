@@ -1,6 +1,6 @@
 package saturation.rules;
 
-import com.google.common.graph.Graph;
+import com.github.jsonldjava.shaded.com.google.common.graph.Graph;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import saturation.context.ContextCR6;

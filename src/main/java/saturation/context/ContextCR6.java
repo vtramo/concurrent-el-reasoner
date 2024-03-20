@@ -1,9 +1,10 @@
 package saturation.context;
 
-import com.google.common.graph.EndpointPair;
-import com.google.common.graph.Graph;
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
+
+import com.github.jsonldjava.shaded.com.google.common.graph.EndpointPair;
+import com.github.jsonldjava.shaded.com.google.common.graph.Graph;
+import com.github.jsonldjava.shaded.com.google.common.graph.GraphBuilder;
+import com.github.jsonldjava.shaded.com.google.common.graph.MutableGraph;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
