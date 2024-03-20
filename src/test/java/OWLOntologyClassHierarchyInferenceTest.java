@@ -63,4 +63,27 @@ public class OWLOntologyClassHierarchyInferenceTest {
 
     }
 
+    @Test
+    public void testOntologyUniversity() {
+        OWLOntology ontology = OntologyUtils.createSimpleOntologyUniversity();
+        OWLReasonerFactory owlReasonerFactory = new ELPPReasonerFactory();
+        OWLReasoner myReasoner = owlReasonerFactory.createReasoner(ontology);
+
+        OWLReasonerFactory oracleFactoryHermiT = new ReasonerFactory();
+        OWLReasoner hermiT = oracleFactoryHermiT.createReasoner(ontology);
+
+        myReasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
+        hermiT.precomputeInferences(InferenceType.CLASS_HIERARCHY);
+
+        for (OWLClass owlClass: ontology.getClassesInSignature()) {
+            assertThat(myReasoner.getEquivalentClasses(owlClass), is(equalTo(hermiT.getEquivalentClasses(owlClass))));
+
+            assertThat(myReasoner.getSubClasses(owlClass), is(equalTo(hermiT.getSubClasses(owlClass))));
+            assertThat(myReasoner.getSubClasses(owlClass, InferenceDepth.DIRECT), is(equalTo(hermiT.getSubClasses(owlClass, InferenceDepth.DIRECT))));
+
+            assertThat(myReasoner.getSuperClasses(owlClass), is(equalTo(hermiT.getSuperClasses(owlClass))));
+            assertThat(myReasoner.getSuperClasses(owlClass, InferenceDepth.DIRECT), is(equalTo(hermiT.getSuperClasses(owlClass, InferenceDepth.DIRECT))));
+        }
+    }
+
 }
