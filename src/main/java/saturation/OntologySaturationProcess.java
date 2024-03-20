@@ -55,7 +55,8 @@ public class OntologySaturationProcess {
             .flatMap(Collection::stream)
             .collect(toSet());
 
-        return new SaturationResult(conclusions, discardedAxioms);
+        conclusions.addAll(discardedAxioms);
+        return new SaturationResult(conclusions);
     }
 
     private void createInitialContexts() {
